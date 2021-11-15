@@ -161,8 +161,8 @@ public class NetworkedServer : MonoBehaviour
 
                 GameRoom gr = new GameRoom(playerWaitingForMatch, id);
                 gameRooms.AddLast(gr);
-                SendMessageToClient(ServerToClientSignifiers.GameRoomStarted + "", id);
-                SendMessageToClient(ServerToClientSignifiers.GameRoomStarted + "", playerWaitingForMatch);
+                SendMessageToClient(ServerToClientSignifiers.GameRoomStarted + "," + "X", id);
+                SendMessageToClient(ServerToClientSignifiers.GameRoomStarted + "," + "0", playerWaitingForMatch);
 
 
                 playerWaitingForMatch = -1;    // Reset to having nobody waiting for match

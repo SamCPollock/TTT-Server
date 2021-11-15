@@ -177,16 +177,34 @@ public class NetworkedServer : MonoBehaviour
 
             GameRoom gr = FindGameRoomWithPlayerID(id);
 
-            if (gr.playerID1 == id)
+            if (gr.playerID1 == id) // player 1
             {
                 SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "," + int.Parse(row) + "," + int.Parse(column), gr.playerID2); // Notify of a play
                 // Send the row and column of the play
             }
-            else
+            else // player 2 
             {
                 SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "," + + int.Parse(row) + "," + int.Parse(column), gr.playerID1); // Notify of a play
 
             }
+        }
+
+        else if (signifier == ClientToServerSignifiers.ChatSentToServer)
+        {
+            string chatMessage = csv[1];
+            GameRoom gr = FindGameRoomWithPlayerID(id);
+            
+            if (gr.playerID1 == id) // player 1
+            {
+                SendMessageToClient(ServerToClientSignifiers.ChatSentToClient + "," + chatMessage, gr.playerID2); // Notify of a play
+                // Send the row and column of the play
+            }
+            else // player 2 
+            {
+                SendMessageToClient(ServerToClientSignifiers.ChatSentToClient + ","  + chatMessage, gr.playerID1); // Notify of a play
+
+            }
+
         }
 
 
@@ -274,6 +292,8 @@ public static class ServerToClientSignifiers
 
     public const int OpponentPlayed = 6;
 
+    public const int ChatSentToClient = 7;
+
 }
 
 public static class ClientToServerSignifiers
@@ -282,6 +302,7 @@ public static class ClientToServerSignifiers
     public const int LoginAttempt = 2;
     public const int AddToGameRoomQueue = 3;
     public const int TicTacToePlay = 4;
+    public const int ChatSentToServer = 5;
 
 
 }

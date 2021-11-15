@@ -172,16 +172,19 @@ public class NetworkedServer : MonoBehaviour
         else if (signifier == ClientToServerSignifiers.TicTacToePlay)
         {
             Debug.Log("SENT A PLAY");
+            string row = csv[1];
+            string column = csv[2];
 
             GameRoom gr = FindGameRoomWithPlayerID(id);
 
             if (gr.playerID1 == id)
             {
-                SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "", gr.playerID2);
+                SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "," + int.Parse(row) + "," + int.Parse(column), gr.playerID2); // Notify of a play
+                // Send the row and column of the play
             }
             else
             {
-                SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "", gr.playerID1);
+                SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "," + + int.Parse(row) + "," + int.Parse(column), gr.playerID1); // Notify of a play
 
             }
         }

@@ -220,13 +220,14 @@ public class NetworkedServer : MonoBehaviour
             {
                 StreamReader sr = new StreamReader(replayDataFilePath);
                 string line;
+                string replayCsv = "";
                 while ((line = sr.ReadLine()) != null)
                 {
-
-                    // THIS DOESN'T WORK. The clien just receives: "msg recieved = 8,System.String[].  connection id = 1"
-                    string replaycsv = line;
-                    SendMessageToClient(ServerToClientSignifiers.ReplaySent + "," + replaycsv, id);
+                    
+                    replayCsv += line + ",";
                 }
+                SendMessageToClient(ServerToClientSignifiers.ReplaySent + "," + replayCsv, id);
+
             }
         }
 

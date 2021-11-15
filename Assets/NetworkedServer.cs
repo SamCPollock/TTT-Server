@@ -16,8 +16,10 @@ public class NetworkedServer : MonoBehaviour
 
     LinkedList<PlayerAccount> playerAccounts;
     LinkedList<GameRoom> gameRooms;
+    LinkedList<TurnData> turnList;
 
     string playerAccountFilePath;
+    string replayDataFilePath;
 
     int playerWaitingForMatch = -1;
 
@@ -27,6 +29,7 @@ public class NetworkedServer : MonoBehaviour
     {
 
         playerAccountFilePath = (Application.dataPath + Path.DirectorySeparatorChar + "PlayerAccountData.txt");
+        replayDataFilePath = (Application.dataPath + Path.DirectorySeparatorChar + "ReplayData.txt");
 
         NetworkTransport.Init();
         ConnectionConfig config = new ConnectionConfig();
@@ -37,6 +40,7 @@ public class NetworkedServer : MonoBehaviour
 
         playerAccounts = new LinkedList<PlayerAccount>();
         gameRooms = new LinkedList<GameRoom>();
+        turnList = new LinkedList<TurnData>();
 
         LoadPlayerAccounts();
     }
@@ -175,6 +179,9 @@ public class NetworkedServer : MonoBehaviour
             string row = csv[1];
             string column = csv[2];
 
+            TurnData td = new TurnData("player", row, column);
+            turnList.AddLast(td);
+
             GameRoom gr = FindGameRoomWithPlayerID(id);
 
             if (gr.playerID1 == id) // player 1
@@ -187,6 +194,7 @@ public class NetworkedServer : MonoBehaviour
                 SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "," + + int.Parse(row) + "," + int.Parse(column), gr.playerID1); // Notify of a play
 
             }
+            SaveReplayData();
         }
 
         else if (signifier == ClientToServerSignifiers.ChatSentToServer)
@@ -206,6 +214,21 @@ public class NetworkedServer : MonoBehaviour
             }
 
         }
+        else if (signifier == ClientToServerSignifiers.RequestReplay)
+        {
+            if (File.Exists(replayDataFilePath))
+            {
+                StreamReader sr = new StreamReader(replayDataFilePath);
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+
+                    // THIS DOESN'T WORK. The clien just receives: "msg recieved = 8,System.String[].  connection id = 1"
+                    string replaycsv = line;
+                    SendMessageToClient(ServerToClientSignifiers.ReplaySent + "," + replaycsv, id);
+                }
+            }
+        }
 
 
     }
@@ -218,6 +241,16 @@ public class NetworkedServer : MonoBehaviour
             sw.WriteLine(pa.name + "," + pa.password);
         }
 
+        sw.Close();
+    }
+
+    private void SaveReplayData()
+    {
+        StreamWriter sw = new StreamWriter(replayDataFilePath);
+        foreach (TurnData td in turnList)
+        {
+            sw.WriteLine(td.player + "," + td.row + "," + td.column);
+        }
         sw.Close();
     }
 
@@ -267,6 +300,20 @@ public class PlayerAccount
     }
 }
 
+public class TurnData
+{
+    public string player;
+    public string row;
+    public string column;
+
+    public TurnData(string Player, string Row, string Column)
+    {
+        player = Player;
+        row = Row;
+        column = Column;
+    }
+}
+
 public class GameRoom
 {
     // Hold two clients. 
@@ -294,6 +341,9 @@ public static class ServerToClientSignifiers
 
     public const int ChatSentToClient = 7;
 
+    public const int ReplaySent = 8;
+
+
 }
 
 public static class ClientToServerSignifiers
@@ -303,6 +353,7 @@ public static class ClientToServerSignifiers
     public const int AddToGameRoomQueue = 3;
     public const int TicTacToePlay = 4;
     public const int ChatSentToServer = 5;
+    public const int RequestReplay = 6;
 
 
 }

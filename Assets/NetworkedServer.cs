@@ -188,12 +188,22 @@ public class NetworkedServer : MonoBehaviour
             {
                 SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "," + int.Parse(row) + "," + int.Parse(column), gr.playerID2); // Notify of a play
                 // Send the row and column of the play
+                
+                if (gr.spectatorID != -1)
+                {
+                    SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "," + +int.Parse(row) + "," + int.Parse(column), gr.spectatorID); // Notify of a 
+                }
             }
             else // player 2 
             {
                 SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "," + + int.Parse(row) + "," + int.Parse(column), gr.playerID1); // Notify of a play
-
+                
+                if (gr.spectatorID != -1)
+                {
+                    SendMessageToClient(ServerToClientSignifiers.OpponentPlayed + "," + +int.Parse(row) + "," + int.Parse(column), gr.spectatorID); // Notify of a 
+                }
             }
+
             SaveReplayData();
         }
 
@@ -204,12 +214,12 @@ public class NetworkedServer : MonoBehaviour
             
             if (gr.playerID1 == id) // player 1
             {
-                SendMessageToClient(ServerToClientSignifiers.ChatSentToClient + "," + chatMessage, gr.playerID2); // Notify of a play
+                SendMessageToClient(ServerToClientSignifiers.ChatSentToClient + "," + chatMessage, gr.playerID2); // Notify of a message
                 // Send the row and column of the play
             }
             else // player 2 
             {
-                SendMessageToClient(ServerToClientSignifiers.ChatSentToClient + ","  + chatMessage, gr.playerID1); // Notify of a play
+                SendMessageToClient(ServerToClientSignifiers.ChatSentToClient + ","  + chatMessage, gr.playerID1); // Notify of a message
 
             }
 
@@ -228,6 +238,15 @@ public class NetworkedServer : MonoBehaviour
                 }
                 SendMessageToClient(ServerToClientSignifiers.ReplaySent + "," + replayCsv, id);
 
+            }
+        }
+
+        else if (signifier == ClientToServerSignifiers.RequestSpectate)
+        {
+            if (gameRooms.Count > 0)
+            {
+                GameRoom roomToSpectate = gameRooms.First.Value;
+                roomToSpectate.spectatorID = id;
             }
         }
 
@@ -320,6 +339,8 @@ public class GameRoom
     // Hold two clients. 
     public int playerID1, playerID2;
 
+    public int spectatorID = -1;
+
     public GameRoom(int PlayerID1, int PlayerID2)
         {
         playerID1 = PlayerID1;
@@ -355,6 +376,6 @@ public static class ClientToServerSignifiers
     public const int TicTacToePlay = 4;
     public const int ChatSentToServer = 5;
     public const int RequestReplay = 6;
-
+    public const int RequestSpectate = 7;
 
 }

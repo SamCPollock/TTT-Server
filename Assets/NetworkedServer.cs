@@ -24,7 +24,6 @@ public class NetworkedServer : MonoBehaviour
     int playerWaitingForMatch = -1;
 
 
-    // Start is called before the first frame update
     void Start()
     {
 
@@ -267,6 +266,7 @@ public class NetworkedServer : MonoBehaviour
     private void SaveReplayData()
     {
         StreamWriter sw = new StreamWriter(replayDataFilePath);
+        sw.Write("");   // Clear the replay file.
         foreach (TurnData td in turnList)
         {
             sw.WriteLine(td.player + "," + td.row + "," + td.column);
